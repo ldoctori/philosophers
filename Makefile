@@ -4,7 +4,7 @@ CC = gcc
 
 FLAGS = -Wall -Wextra -Werror -pthread
 
-SOURCE = philosophers.c
+SOURCE = philosophers.c ft_atoi.c lists.c helpers.c free_destroy.c
 
 OBJECT = $(SOURCE:.o=.c)
 
