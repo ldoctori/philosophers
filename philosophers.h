@@ -30,6 +30,7 @@ typedef struct s_philo
     t_mutex         *left;
     t_mutex         *right;
     pthread_mutex_t *dead;
+    int         *if_someone_dead;
     long        time_of_last_meal;
     long        time_of_start_sec;
     long        time_of_start_usec;

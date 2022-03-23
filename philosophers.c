@@ -24,7 +24,8 @@ void	*monitor(void *ph)
 			&& philo->number_of_meal >= philo->input->max_number_of_meal)
 			return (NULL);
 		if (die_check(philo) == 1 && philo->eat_state == 0)
-		{
+		{	
+			*philo->if_someone_dead = 1;
 			pthread_mutex_lock(philo->dead);
 			printf("%i philosopher %i died\n", get_time(philo), philo->philo_id);
 			return (NULL);
@@ -40,6 +41,8 @@ void	*print(void *ph)
 	if (!ph)
 		return (NULL);
 	philo = ph;
+	if (*philo->if_someone_dead == 1)
+		return (NULL);
 	pthread_mutex_lock(&philo->right->mutex);
 	pthread_mutex_lock(philo->dead);
 	printf("%i philosopher %i has taken right fork\n",
@@ -49,13 +52,10 @@ void	*print(void *ph)
 		pthread_mutex_lock(&philo->left->mutex);
 	else
 		usleep(philo->input->time_to_die * 1000);
-	if (die_check(philo) == 1)
-	{
-		pthread_mutex_unlock(&philo->right->mutex);
-		pthread_mutex_unlock(&philo->left->mutex);
-		printf("%i philosopher %i died\n", get_time(philo), philo->philo_id);
+	
+	if (*philo->if_someone_dead == 1)
 		return (NULL);
-	}
+	
 	pthread_mutex_lock(philo->dead);
 	printf("%i philosopher %i has taken left fork\n",
 		get_time(philo), philo->philo_id);
@@ -74,10 +74,18 @@ void	*print(void *ph)
 	if (philo->input->max_number_of_meal > 0
 		&& philo->number_of_meal >= philo->input->max_number_of_meal)
 		return (NULL);
+
+	if (*philo->if_someone_dead == 1)
+		return (NULL);
+
 	pthread_mutex_lock(philo->dead);
 	printf("%i philosopher %i is sleeping\n", get_time(philo), philo->philo_id);
 	pthread_mutex_unlock(philo->dead);
 	usleep(philo->input->time_to_sleep * 1000);
+
+	if (*philo->if_someone_dead == 1)
+		return (NULL);
+
 	pthread_mutex_lock(philo->dead);
 	printf("%i philosopher %i is thinking\n", get_time(philo), philo->philo_id);
 	pthread_mutex_unlock(philo->dead);
@@ -89,20 +97,27 @@ void main_helper(pthread_t **arr, t_philo *philo, t_mutex *mtx)
 	pthread_t	mon;
 	int			i;
 	int			philo_num;
+	int			if_someone_dead;
 
+	if_someone_dead = 0;
 	philo_num = philo->input->philo_num;
 	i = 0;
-	gettimeofday(&tv, NULL);
-	philo_mtx_accordance(philo, mtx, &tv, dead);
-	while (i < input.philo_num)
+	while (i < philo_num)
 	{
+		philo->if_someone_dead = &if_someone_dead;
 		pthread_create(arr[i], NULL, print, (void *) philo);
-		pthread_detach(*arr[i]);
 		philo = philo->next;
 		i++;
 		usleep(100);
 	}
 	pthread_create(&mon, NULL, monitor, (void *) philo);
+	i = 0;
+	while (i < philo_num)
+	{
+		pthread_join(*arr[i], NULL);
+		philo = philo->next;
+		i++;
+	}
 	pthread_join(mon, NULL);
 	pthread_mutex_destroy(philo->dead);
 	free(philo->dead);
@@ -120,10 +135,10 @@ int	main(int argc, char **argv)
 	struct timeval	tv;
 	pthread_mutex_t	*dead;
 
-	dead = malloc(sizeof(t_mutex));
-	pthread_mutex_init(dead, NULL);
 	if (argc < 5 || argc > 6)
 		return (0);
+		dead = malloc(sizeof(t_mutex));
+	pthread_mutex_init(dead, NULL);
 	take_input(&input, ++argv);
 	arr = arr_create(input.philo_num);
 	philo = philo_list_init(&input);
@@ -132,25 +147,4 @@ int	main(int argc, char **argv)
 	gettimeofday(&tv, NULL);
 	philo_mtx_accordance(philo, mtx, &tv, dead);
 	main_helper(arr, philo, mtx);
-/*	while (i < input.philo_num)
-	{
-		pthread_create(arr[i], NULL, print, (void *) philo);
-		philo = philo->next;
-		i++;
-		usleep(100);
-	}
-
-	pthread_create(&mon, NULL, monitor, (void *) philo);
-	i = 0;
-	while (i < input.philo_num)
-	{
-		pthread_detach(*arr[i]);
-		i++;
-	}
-	pthread_join(mon, NULL);
-	pthread_mutex_destroy(dead);
-	free(dead);
-	free_philo(philo);
-	free_destroy_mtx(mtx, input.philo_num);
-	free_thread_arr(arr, input.philo_num);*/
 }

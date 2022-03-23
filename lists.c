@@ -12,7 +12,7 @@
 
 #include "philosophers.h"
 
-void	*philo_list_init_helper(t_philo *philo, t_input *input, int id)
+void	philo_list_init_helper(t_philo *philo, t_input *input, int id)
 {
 	philo->input = input;
 	philo->number_of_meal = 0;
