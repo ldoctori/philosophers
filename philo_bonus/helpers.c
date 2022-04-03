@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philosophers.h"
+#include "philo_bonus.h"
 
 void	take_input(t_input *input, char **argv)
 {
@@ -28,25 +28,10 @@ void	take_input(t_input *input, char **argv)
 		input->max_number_of_meal = -1;
 }
 
-pthread_t	**arr_create(int philo_num)
-{
-	pthread_t	**arr;
-	int			i;
-
-	i = 0;
-	arr = malloc(sizeof(pthread_t *) * philo_num);
-	while (i < philo_num)
-	{
-		arr[i] = malloc(sizeof(pthread_t));
-		i++;
-	}
-	return (arr);
-}
-
 int	die_check(t_philo *philo)
 {
 	struct timeval	tv;
-	long			passed;
+	int				passed;
 
 	gettimeofday(&tv, NULL);
 	passed = (tv.tv_sec - philo->time_of_start_sec) * 1000

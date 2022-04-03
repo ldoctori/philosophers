@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philosophers.h"
+#include "philo.h"
 
 void	philo_list_init_helper(t_philo *philo, t_input *input, int id)
 {
@@ -68,13 +68,13 @@ t_mutex	*mtx_list_init(int number)
 }
 
 void	philo_mtx_accordance(t_philo *philo, t_mutex *mtx,
-		struct timeval *tv, pthread_mutex_t *dead)
+		struct timeval *tv, pthread_mutex_t *write)
 {
 	philo->left = mtx;
 	philo->right = mtx->prev;
 	philo->time_of_start_sec = tv->tv_sec;
 	philo->time_of_start_usec = tv->tv_usec;
-	philo->dead = dead;
+	philo->write = write;
 	philo = philo->next;
 	mtx = mtx->next;
 	while (philo->philo_id != 1)
@@ -83,7 +83,7 @@ void	philo_mtx_accordance(t_philo *philo, t_mutex *mtx,
 		philo->right = mtx->prev;
 		philo->time_of_start_sec = tv->tv_sec;
 		philo->time_of_start_usec = tv->tv_usec;
-		philo->dead = dead;
+		philo->write = write;
 		philo = philo->next;
 		mtx = mtx->next;
 	}

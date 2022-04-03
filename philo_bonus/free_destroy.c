@@ -1,32 +1,30 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_atoi.c                                          :+:      :+:    :+:   */
+/*   free_destroy.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ldoctori <hectkctk@yandex.ru>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/03/19 18:51:15 by ldoctori          #+#    #+#             */
-/*   Updated: 2022/03/19 18:51:18 by ldoctori         ###   ########.fr       */
+/*   Created: 2022/03/19 18:50:38 by ldoctori          #+#    #+#             */
+/*   Updated: 2022/03/19 18:50:56 by ldoctori         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philosophers.h"
+#include "philo_bonus.h"
 
-int	ft_atoi(const char *str)
+void	free_philo(t_philo *philo)
 {
-	int	number;
-	int	sign;
+	t_philo	*tmp;
+	int		i;
+	int		num;
 
-	number = 0;
-	sign = 1;
-	if (*str == '-')
-		sign = -1;
-	if (*str == '+' || *str == '-')
-		str++;
-	while ('9' >= *str && *str >= '0')
+	num = philo->input->philo_num;
+	i = 0;
+	while (i < num)
 	{
-		number = number * 10 + (*str - '0');
-		str++;
+		tmp = philo;
+		philo = philo->next;
+		free(tmp);
+		i++;
 	}
-	return (number * sign);
 }
